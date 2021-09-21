@@ -37,3 +37,7 @@ mvn spring-boot:run
 You can find the tutorial for this application on my blog -
 
 https://www.callicoder.com/spring-boot-websocket-chat-example/
+
+```puml
+service--->db
+```

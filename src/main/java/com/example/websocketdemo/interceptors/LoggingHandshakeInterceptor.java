@@ -14,7 +14,7 @@ public class LoggingHandshakeInterceptor implements HandshakeInterceptor {
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        logger.info("Before Handshake " + request.getHeaders().toString());
+        logger.info("Before Handshake " + request.getHeaders());
         return true; //TODO
     }
 

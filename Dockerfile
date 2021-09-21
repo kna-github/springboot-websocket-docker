@@ -1,9 +1,6 @@
 # Start with a base image containing Java runtime
 FROM openjdk:8-jdk-alpine
 
-# Add Maintainer Info
-MAINTAINER Rajeev Kumar Singh <callicoder@gmail.com>
-
 # Add a volume pointing to /tmp
 VOLUME /tmp
 
@@ -17,5 +14,5 @@ ARG JAR_FILE=target/websocket-demo-0.0.1-SNAPSHOT.jar
 ADD ${JAR_FILE} websocket-demo.jar
 
 # Run the jar file 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/websocket-demo.jar"]
+ENTRYPOINT ["java","-jar","/websocket-demo.jar"]
 

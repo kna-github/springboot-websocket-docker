@@ -114,7 +114,9 @@ button.accent {
     border-radius: 2px;
     width: 100%;
     max-width: 500px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-top: 42px;
     vertical-align: middle;
     position: relative;
@@ -126,6 +128,7 @@ button.accent {
     right: 0;
     margin: 0 auto;
     margin-top: -160px;
+    flex-direction: column;
 }
 
 .username-page-container .username-submit {
@@ -139,15 +142,14 @@ button.accent {
 }
 
 .chat-container {
-    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
     background-color: #fff;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
-    margin-top: 30px;
-    height: calc(100% - 60px);
-    max-height: 600px;
+    margin-top: 50px;
     position: relative;
+    height: calc(100% - 100px);
+    width: calc(100% - 100px);
 }
 
 #chat-page ul {
@@ -225,7 +227,6 @@ button.accent {
 
 #messageForm .input-group button {
     float: left;
-    width: 80px;
     height: 38px;
     margin-left: 5px;
 }

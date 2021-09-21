@@ -9,7 +9,8 @@ var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 
 var stompClient = null;
-var username = null;
+var routing_key = null;
+var subscription = null;
 
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
@@ -17,31 +18,21 @@ var colors = [
 ];
 
 function connect(event) {
-    username = document.querySelector('#name').value.trim();
+    usernamePage.classList.add('hidden');
+    chatPage.classList.remove('hidden');
 
-    if(username) {
-        usernamePage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
+    var socket = new SockJS('./ws');
+    stompClient = Stomp.over(socket);
 
-        var socket = new SockJS('./ws');
-        stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, onConnected, onError);
-    }
+    stompClient.connect({}, onConnected, onError);
     event.preventDefault();
 }
 
 
 function onConnected() {
-    // Subscribe to the Public Topic
-    stompClient.subscribe('/topic/public', onMessageReceived);
-
-    // Tell your username to the server
-    stompClient.send("/app/chat.addUser",
-        {},
-        JSON.stringify({sender: username, type: 'JOIN'})
-    )
-
+    // no need to specify destination here
+    // server side will substitute destination
+    subscription = stompClient.subscribe(null, onMessageReceived);
     connectingElement.classList.add('hidden');
 }
 
@@ -52,52 +43,28 @@ function onError(error) {
 }
 
 
-function sendMessage(event) {
-    var messageContent = messageInput.value.trim();
-
-    if(messageContent && stompClient) {
-        var chatMessage = {
-            sender: username,
-            content: messageInput.value,
-            type: 'CHAT'
-        };
-
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-        messageInput.value = '';
-    }
+function disconnect(event) {
     event.preventDefault();
+
+    subscription.unsubscribe();
+    stompClient.disconnect();
+
+    chatPage.classList.add('hidden')
+    messageArea.innerHTML = "";
+    usernamePage.classList.remove('hidden');
+    connectingElement.classList.remove('hidden');
 }
 
 
 function onMessageReceived(payload) {
-    var message = JSON.parse(payload.body);
+    const message = payload.body;
 
     var messageElement = document.createElement('li');
 
-    if(message.type === 'JOIN') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
-    } else if (message.type === 'LEAVE') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
-    } else {
-        messageElement.classList.add('chat-message');
 
-        var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
-        avatarElement.appendChild(avatarText);
-        avatarElement.style['background-color'] = getAvatarColor(message.sender);
-
-        messageElement.appendChild(avatarElement);
-
-        var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
-        usernameElement.appendChild(usernameText);
-        messageElement.appendChild(usernameElement);
-    }
 
     var textElement = document.createElement('p');
-    var messageText = document.createTextNode(message.content);
+    var messageText = document.createTextNode(message);
     textElement.appendChild(messageText);
 
     messageElement.appendChild(textElement);
@@ -106,16 +73,5 @@ function onMessageReceived(payload) {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-
-function getAvatarColor(messageSender) {
-    var hash = 0;
-    for (var i = 0; i < messageSender.length; i++) {
-        hash = 31 * hash + messageSender.charCodeAt(i);
-    }
-
-    var index = Math.abs(hash % colors.length);
-    return colors[index];
-}
-
 usernameForm.addEventListener('submit', connect, true)
-messageForm.addEventListener('submit', sendMessage, true)
+messageForm.addEventListener('submit', disconnect, true)
